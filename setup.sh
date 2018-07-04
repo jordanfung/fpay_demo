@@ -79,4 +79,9 @@ cd $project_home/server
 make
 cp node_server $install_path/bin
 cp -r $project_home/conf $install_path
+
+echo "compile test"
+cd $project_home/test
+make
+
 echo "done."
