@@ -34,28 +34,18 @@ public:
 	void setPeerIp(uint32_t ip) { peerIp = ip; }
 	int getPeerPort() const { return peerPort; }
 	cid_t getConnId() const { return id; }
-	void setConnId(cid_t i) { id = i; }
-
-	void setSerialId(uint32_t s) { serialId = s;}
-	uint32_t getSerialId() const { return serialId;}
-
-	void setEnable(bool be = false) { bEnable = be;}
-	
-	bool isEnable() const { return bEnable;}
-
-	virtual bool isEncrypto() const { return false;}
+	void setConnId(cid_t cid) { id = cid; }
+	void setSerialId(uint32_t id) { serialId = id; }
+	uint32_t getSerialId() const { return serialId; }
+	void setEnable(bool be = false) { bEnable = be; }
+	bool isEnable() const { return bEnable; }
+	virtual bool isEncrypto() const{ return false;}
 	virtual bool isInputEncrypto() const { return false;}
 	virtual bool isOutputEncrypto() const {return false;}
-
 	virtual int getLocalIp() { return 0;}
-
 	virtual int getConnType() { return 1;}
-
 	virtual std::string remote_addr() { return "";}
-	virtual cid_t getConnId(void)
-	{
-		return id;
-	}
+	virtual cid_t getConnId(void) { return id; }
 
 protected:
 	cid_t id;
@@ -72,7 +62,7 @@ struct IConnDispatcher
 {
 	virtual ~IConnDispatcher() {}
 	virtual bool dispatchById(cid_t cid, Sender &) = 0;
-	virtual bool dispatchByIds(const std::set<uint32_t> &ids, Sender &, uint32_t exp) = 0;
+	virtual bool dispatchByIds(const std::set<uint32_t> &ids, Sender &sender, uint32_t exp) = 0;
 };
 
 struct CreateCallback
@@ -85,14 +75,14 @@ class ClientConnFactory
 {
 public:
 	virtual ~ClientConnFactory() {}
-	virtual IConn *createConnection(const std::string& ip, uint32_t port, IProtoConsumer *ih, IConnEventHandler *ie, CreateCallback *call) = 0;
+	virtual IConn *createConnection(const std::string& ip, uint32_t port, IProtoConsumer *consumer, IConnEventHandler *handler, CreateCallback *callback) = 0;
 };
 
 class ServerConnFactory
 {
 public:
 	virtual ~ServerConnFactory(){}
-	virtual IConn *createConnection(int fd, uint32_t ip, int port, IProtoConsumer *ih, IConnEventHandler *ie, CreateCallback *call) = 0;
+	virtual IConn *createConnection(int fd, uint32_t ip, int port, IProtoConsumer *consumer, IConnEventHandler *handler, CreateCallback *callback) = 0;
 };
 
 class IConnManager
@@ -114,11 +104,11 @@ public:
 
     virtual IConn *getConnById(cid_t id) = 0;
     virtual int getLocalIp() const {return 0;}
-    virtual void setClientConnFactory(ClientConnFactory *cc) { _clientConnFactory = cc;}
-    virtual void setServerConnFactory(ServerConnFactory *sc) { _serverConnFactory = sc;}
+    virtual void setClientConnFactory(ClientConnFactory *factory) { _clientConnFactory = factory;}
+    virtual void setServerConnFactory(ServerConnFactory *factory) { _serverConnFactory = factory;}
 
-    virtual IConn *createClientSideConn(const std::string& ip, uint32_t port, IProtoConsumer *ih, IConnEventHandler *ie) = 0;
-    virtual IConn *createServerSideConn(int fd, uint32_t ip, int port, IProtoConsumer *ih, IConnEventHandler *ie) = 0;
+    virtual IConn *createClientSideConn(const std::string& ip, uint32_t port, IProtoConsumer *consumer, IConnEventHandler *handler) = 0;
+    virtual IConn *createServerSideConn(int fd, uint32_t ip, int port, IProtoConsumer *consumer, IConnEventHandler *handler) = 0;
 };
 
 

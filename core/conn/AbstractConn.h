@@ -10,7 +10,7 @@ public:
     AbstractConn();
     virtual ~AbstractConn() {}
     virtual void send(Sender &resp);
-    virtual void setTimeout(int tm);
+    virtual void setTimeout(int timeout);
     virtual void *getData();
     virtual void notifyErr(int err, const char *msg);
 

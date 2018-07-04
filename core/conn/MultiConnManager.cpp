@@ -14,14 +14,14 @@ MultiConnManager::MultiConnManager()
 
 MultiConnManager::~MultiConnManager()
 {
-    for (connect_t::iterator it = connects.begin(); it != connects.end(); ++it) {
+    for (conn_map_t::iterator it = connMap.begin(); it != connMap.end(); ++it) {
         delete (*it).second;
     }
 }
 
 void MultiConnManager::eraseConnection(IConn *conn)
 {
-    connect_t::size_type sz =connects.erase(conn->getConnId());
+    conn_map_t::size_type sz = connMap.erase(conn->getConnId());
     if (sz != 0) {
         delete conn;
     }
@@ -29,34 +29,34 @@ void MultiConnManager::eraseConnection(IConn *conn)
 
 void MultiConnManager::eraseConnectionById(cid_t id)
 {
-    connect_t::iterator it = connects.find(id);
-    if (it != connects.end()) {
+    conn_map_t::iterator it = connMap.find(id);
+    if (it != connMap.end()) {
         eraseConnection(it->second);
     }
 }
 
 IConn *MultiConnManager::getConnById(cid_t id)
 {
-    connect_t::iterator it = connects.find(id);
-    return it == connects.end() ? NULL : it->second;
+    conn_map_t::iterator it = connMap.find(id);
+    return it == connMap.end() ? NULL : it->second;
 }
 
-bool MultiConnManager::dispatchByIds(const std::set<cid_t> &ids, Sender &resp,  uint32_t exp)
+bool MultiConnManager::dispatchByIds(const std::set<cid_t> &ids, Sender &sender,  uint32_t exp)
 {
-    resp.endPack();
+    sender.endPack();
 
     for (std::set<cid_t>::const_iterator it = ids.begin(); it!= ids.end(); ++it) {
         if (exp != (uint32_t)-1 && exp == *it) {
             continue;
         }
 
-        IConn *conn = *it < connects.size() ? connects[*it] : NULL;
+        IConn *conn = *it < connMap.size() ? connMap[*it] : NULL;
         if (!conn) {
             return false;
         }
 
         try {
-            conn->sendBin(resp.header(), resp.headerSize() + resp.bodySize(), resp.getUri());
+            conn->sendBin(sender.header(), sender.headerSize() + sender.bodySize(), sender.getUri());
         } catch(std::exception &se) {
             conn->setEnable(false);
             lazyDelIds.insert(*it);
@@ -67,18 +67,18 @@ bool MultiConnManager::dispatchByIds(const std::set<cid_t> &ids, Sender &resp,  
     return true;
 }
 
-bool MultiConnManager::dispatchById(cid_t cid, Sender &request)
+bool MultiConnManager::dispatchById(cid_t cid, Sender &sender)
 {
-    connect_t::iterator it = connects.find(cid);
-    if (it != connects.end()) {
+    conn_map_t::iterator it = connMap.find(cid);
+    if (it != connMap.end()) {
         try {
-            (*it).second->send(request);
+            (*it).second->send(sender);
             return true;
         } catch (std::exception &se){
             LOG_WARN << "dispatch by cid:" << cid 
                 << " err: " << se.what() 
-                << " uri:" << request.getUri() 
-                <<  " size:" << request.bodySize();
+                << " uri:" << sender.getUri() 
+                <<  " size:" << sender.bodySize();
             (*it).second->setEnable(false);
             lazyDelIds.insert(cid);
         }
@@ -93,7 +93,7 @@ void MultiConnManager::onConnCreate(IConn *conn)
 {
     conn->setConnId(++cid);
     conn->setSerialId(cid);
-    connects[conn->getConnId()] = conn;
+    connMap[conn->getConnId()] = conn;
     conn->setConnEventHandler(this);
 }
 

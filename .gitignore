@@ -35,3 +35,4 @@
 build/*
 daemon_server
 node_server
+test/test

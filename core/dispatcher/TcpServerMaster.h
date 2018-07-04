@@ -29,42 +29,42 @@ class TcpServerMaster
     : public IAbstractServer
     , public IWorkerManager
 {
-    protected:
-        friend class MasterAcceptor;
+protected:
+    friend class MasterAcceptor;
 
-        MasterAcceptor* _acceptor;
-        uint16_t _listenPort;
-        std::string _ip;
-        bool m_bOpenAllow;
-        std::set<uint32_t> allowIps;
+    MasterAcceptor* _acceptor;
+    uint16_t _listenPort;
+    std::string _ip;
+    bool _enableIpFilter;
+    std::set<uint32_t> _ipWhiteList;
 
-    public:
-        TcpServerMaster();
-        TcpServerMaster(unsigned short port, uint8_t numWorker, const char* exec, const char * workerConf);
-        virtual ~TcpServerMaster();
+public:
+    TcpServerMaster();
+    TcpServerMaster(unsigned short port, uint8_t numWorker, const char* exec, const char * workerConf);
+    virtual ~TcpServerMaster();
 
-        void onAccept(int so, uint32_t ip, int port);
+    void onAccept(int so, uint32_t ip, int port);
 
-        void setAllowIPs(const std::set<uint32_t> &setIPs);
-        void setListenPort(const uint16_t port)
-        {
-            _listenPort = port;
-        }
+    void setIPWhiteList(const std::set<uint32_t> &ipSet);
+    void setListenPort(const uint16_t port)
+    {
+        _listenPort = port;
+    }
 
-        virtual std::string getIp()
-        {
-            return _ip;
-        }
+    virtual std::string getIp()
+    {
+        return _ip;
+    }
 
-        virtual uint16_t getPort()
-        {
-            return _listenPort;
-        }
+    virtual uint16_t getPort()
+    {
+        return _listenPort;
+    }
 
-        virtual void start();
+    virtual void start();
 
-    protected:
-        virtual MasterAcceptor* createAcceptor(const char* ip, uint16_t port);
+protected:
+    virtual MasterAcceptor* createAcceptor(const char* ip, uint16_t port);
 };
 
 #endif

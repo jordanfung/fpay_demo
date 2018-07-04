@@ -18,33 +18,36 @@
 
 using namespace std;
 
-void MasterAcceptor::onAccept(int so, uint32_t ip, int port){
+void MasterAcceptor::onAccept(int so, uint32_t ip, int port)
+{
     DLOG_TRACE;
     master->onAccept(so, ip, port);
 }
 
-void MasterAcceptor::start(){
+void MasterAcceptor::start()
+{
     DLOG_TRACE;
     addEvent(0, EVENT_READ);
 }
 
 
 TcpServerMaster::TcpServerMaster()
-    : m_bOpenAllow(false)
+    : _enableIpFilter(false)
 {
 }
 
 TcpServerMaster::TcpServerMaster(unsigned short port, uint8_t numWorker, const char* exec, const char * workerConf)
-    : IWorkerManager(numWorker, exec, workerConf), _listenPort(port), m_bOpenAllow(false)
+    : IWorkerManager(numWorker, exec, workerConf)
+    , _listenPort(port)
+    , _enableIpFilter(false)
 {
 }
 
 void TcpServerMaster::onAccept(int so, uint32_t ip, int port)
 {
     DLOG_TRACE;
-    if (m_bOpenAllow)
-    {
-        if(!allowIps.empty() && allowIps.find(ip) == allowIps.end()) {
+    if (_enableIpFilter) {
+        if(!_ipWhiteList.empty() && _ipWhiteList.find(ip) == _ipWhiteList.end()) {
             LOG_WARN << "deny connection from :" << addr_ntoa(ip);
             close(so);
             return;
@@ -81,9 +84,9 @@ MasterAcceptor *TcpServerMaster::createAcceptor(const char *ip, uint16_t port)
     return NULL;
 }
 
-void TcpServerMaster::setAllowIPs( const std::set<uint32_t> &setIPs )
+void TcpServerMaster::setIPWhiteList( const std::set<uint32_t> &ipSet )
 {
-    allowIps = setIPs;
+    _ipWhiteList = ipSet;
 }
 
 void TcpServerMaster::start()

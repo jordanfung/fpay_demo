@@ -22,40 +22,40 @@ public:
     Connection() {}
 
     Connection(int fd, uint32_t ip, int port,
-            IProtoConsumer *proto, IConnEventHandler *eh, bool nodelay = false)
+            IProtoConsumer *consumer, IConnEventHandler *handler, bool nodelay = false)
         : TcpSock(fd)
     {
         if (nodelay) {
             socket().setnodelay();
         }
-        setProtoConsumer(proto);
-        setConnEventHandler(eh);
+        setProtoConsumer(consumer);
+        setConnEventHandler(handler);
         cType = ACCEPT;
         init("Accept from", ip, port);
    }
 
     Connection(const std::string & ip, int port, int timeout,
-            IProtoConsumer *proto, IConnEventHandler *eh, bool nodelay = false)
+            IProtoConsumer *consumer, IConnEventHandler *handler, bool nodelay = false)
         : TcpSock(ip, port, timeout)
     {
         if (nodelay) {
             socket().setnodelay();
         }
-        setProtoConsumer(proto);
-        setConnEventHandler(eh);
+        setProtoConsumer(consumer);
+        setConnEventHandler(handler);
         cType = CONNECT;
         init("Connect to", aton_addr(ip), port);
     }
 
-    Connection(uint32_t ip, int port, int timeout,  IProtoConsumer *proto,
-            IConnEventHandler *eh, bool nodelay = false)
+    Connection(uint32_t ip, int port, int timeout,  IProtoConsumer *consumer,
+            IConnEventHandler *handler, bool nodelay = false)
         : TcpSock(ip, port, timeout)
     {
         if(nodelay){
             socket().setnodelay();
         }
-        setProtoConsumer(proto);
-        setConnEventHandler(eh);
+        setProtoConsumer(consumer);
+        setConnEventHandler(handler);
         cType = CONNECT;
         init("Connect to", ip, port);
     }

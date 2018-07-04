@@ -105,10 +105,10 @@ Connection::~Connection()
     LOG_INFO << "Destroy: " << toString().data();
 }
 
-void Connection::setTimeout(int tm)
+void Connection::setTimeout(int timeout)
 {
-    AbstractConn::setTimeout(tm);
-    addTimer(tm);
+    AbstractConn::setTimeout(timeout);
+    addTimer(timeout);
 }
 
 void Connection::onTimeout()
@@ -125,13 +125,13 @@ void Connection::onTimeout()
         }
         try {
             _eventHandler->onError(env::SocketErrorLogLevel, (std::string("Inner Conn read error:") + se.what()).data(), this);
-        }catch(std::exception &err) {
+        } catch(std::exception &err) {
             LOG_WARN << "ignore exception in socketExn:" << err.what();
         }
     } catch(std::exception &ex) {
         try {
             _eventHandler->onError(env::SocketErrorLogLevel, (std::string("Inner Conn read error:") + ex.what()).data(), this);
-        }catch(std::exception &err) {
+        } catch(std::exception &err) {
             LOG_WARN << "ignore exception in exception:" << err.what();
         }
     }

@@ -29,9 +29,9 @@ public:
     virtual void DelayDelConn(IConn *conn);
 
     IConn *createServerSideConn(int fd, uint32_t ip, int port,
-            IProtoConsumer *h, IConnEventHandler *eH);
+            IProtoConsumer *consumer, IConnEventHandler *handler);
     IConn *createClientSideConn(const std::string& ip, uint32_t port,
-            IProtoConsumer *iH, IConnEventHandler *eH);
+            IProtoConsumer *consumer, IConnEventHandler *handler);
 
 protected:
     std::set<uint32_t> lazyDelIds;

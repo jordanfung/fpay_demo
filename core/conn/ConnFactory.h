@@ -13,8 +13,10 @@ public:
     ConnFactory()
         : m_bTcpNodelay(true)
     {}
-    IConn *createConnection(const std::string& ip, uint32_t port, IProtoConsumer *proto, IConnEventHandler *eh, CreateCallback *call); 
-    virtual IConn *createConnection(int fd, uint32_t ip, int port, IProtoConsumer *h, IConnEventHandler *eH, CreateCallback *); 
+    IConn *createConnection(const std::string& ip, uint32_t port,
+        IProtoConsumer* consumer, IConnEventHandler* handler, CreateCallback* callback); 
+    virtual IConn *createConnection(int fd, uint32_t ip, int port,
+        IProtoConsumer* consumer, IConnEventHandler *handler, CreateCallback* callback); 
     void setConnTcpNodelay(bool flag)
     {
         m_bTcpNodelay = flag;
@@ -30,34 +32,15 @@ class ServerSideConnFactory : public ServerConnFactory
 public:
     ServerSideConnFactory ()
     {}
-    virtual IConn *createConnection(int fd, uint32_t ip, int port,
-            IProtoConsumer *proto, IConnEventHandler *eH, CreateCallback *call) 
+    virtual IConn* createConnection(int fd, uint32_t ip, int port,
+            IProtoConsumer* consumer, IConnEventHandler* handler, CreateCallback* callback) 
     {
-        C *conn = new C(fd, ip, port, proto, eH, true);
-        conn->setProtoConsumer(proto);
-        conn->setConnEventHandler(eH);
-        if(call) {
-            call->onConnCreate(conn);
+        C *conn = new C(fd, ip, port, consumer, handler, true);
+        conn->setProtoConsumer(consumer);
+        conn->setConnEventHandler(handler);
+        if(callback) {
+            callback->onConnCreate(conn);
         }
-        conn->addEvent(0, EVENT_READ);
-        return conn;
-    }   
-};  
-
-template<class C>
-class ClientSideConnFactory : public ClientConnFactory
-{
-public:
-    ClientSideConnFactory()
-    {}
-    virtual IConn *creatConnect(const std::string &ip, uint32_t port,
-            IProtoConsumer *proto, IConnEventHandler *eH, CreateCallback *call) 
-    {
-        C *conn = new C(ip, port, 2000, proto, eH, true);
-        conn->setProtoConsumer(proto);
-        conn->setConnEventHandler(eH);
-        if(call)
-            call->onConnCreate(conn);
         conn->addEvent(0, EVENT_READ);
         return conn;
     }   

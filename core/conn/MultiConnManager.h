@@ -9,6 +9,7 @@ class MultiConnManager: public LazyDelConnManager
 public:
     MultiConnManager();
     virtual ~MultiConnManager();
+
     virtual void eraseConnection(IConn *conn);
     virtual void eraseConnectionById(cid_t id);
 
@@ -17,17 +18,12 @@ public:
 
     virtual IConn *getConnById(cid_t id);
 
-    size_t getConnSize()
-    {
-        return connects.size();
-    }
-
     virtual void onConnCreate(IConn *conn);
 
 protected:
     cid_t cid;
-    typedef std::map<cid_t, IConn *> connect_t;
-    connect_t connects;
+    typedef std::map<cid_t, IConn *> conn_map_t;
+    conn_map_t connMap;
 };
 
 #endif
