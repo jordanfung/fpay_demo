@@ -38,7 +38,7 @@ public:
 
     string parentNode;
 
-    string logLevel;
+    int logLevel;
     string logPath;
 
     template <class Archive>

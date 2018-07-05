@@ -19,7 +19,7 @@ release: release-recursive
 install: install-recursive copy-file
 
 	
-.PHONY : base xnet conn dispatcher proto sidWatcher writer
+.PHONY : base xnet conn dispatcher proto writer
 xnet:
 	make "SUBDIR = xnet"
 base:

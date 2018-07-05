@@ -21,6 +21,8 @@ public:
     {
         return _server_id;
     }
+    virtual void start()
+    {}
 };
 
 #endif

@@ -18,30 +18,29 @@ DEFINE_int32(port, 9090, "listen port");
 DEFINE_int32(workers, 1, "number of worker process");
 DEFINE_string(exec, "../server/node_server", "exec file path of worker process");
 DEFINE_string(conf, "../conf/server.conf", "worker conf file path");
-DEFINE_string(log, "../logs", "dir of log file");
+DEFINE_string(logPath, "../logs", "dir of log file");
+DEFINE_int32(logLevel, 0, "log level: INFO=0 WARNNING=1 RELEASE=2");
 
-void initLog()
+static void initLog(const string& logPath, int logLevel)
 {
-    google::InitGoogleLogging("log"); 
-    FLAGS_stderrthreshold = google::GLOG_INFO;
-    FLAGS_colorlogtostderr = true;
-    google::SetLogDestination(google::GLOG_INFO, "daemon_log.");
-    google::SetLogDestination(google::GLOG_WARNING, "daemon_warn.");
-    google::SetLogFilenameExtension(".log");
-    FLAGS_logtostderr = 1;
+    FLAGS_log_dir = logPath;
+    google::InitGoogleLogging("daemon"); 
+    //FLAGS_colorlogtostderr = true;
+    FLAGS_logtostderr = 0;
+    FLAGS_minloglevel = logLevel;
 }
 
 int main(int argc, char **argv)
 {
-    initLog();
     google::ParseCommandLineFlags(&argc, &argv, true);
-    FLAGS_log_dir = FLAGS_log;
-    LOG_INFO << "log dir=" << FLAGS_log_dir;
+    initLog(FLAGS_logPath, FLAGS_logLevel);
 
-    LOG_INFO << "starting..........";
+    LOG_RELEASE << "starting..........";
     while (1) {
         pid_t pid = fork();
-        if (pid > 0) {
+        if (pid == 0) {
+            break;
+        } else if (pid > 0) {
             int status;
             pid = waitpid(-1, &status, 0); 
             LOG_INFO << "child process exit, pid=" << pid << ", status=" << status;
@@ -51,7 +50,7 @@ int main(int argc, char **argv)
         }   
     } 
 
-    LOG_INFO << "init event loop";
+    LOG_RELEASE << "init event loop";
     env::ioLoop(new IOLoop());
     env::signalHandler(new SignalHandler());
     env::signalHandler()->addSig(SIGCHLD);

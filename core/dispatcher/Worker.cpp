@@ -103,11 +103,11 @@ int Worker::exec()
     char paramValue3[32];
 
     snprintf(param0, 256, "%s", _exec.c_str());
-    sprintf(paramName1, "--channel");
+    sprintf(paramName1, "-channel");
     sprintf(paramValue1, "%d", _channel[1]);
-    sprintf(paramName2, "%s", "--id");
+    sprintf(paramName2, "%s", "-id");
     sprintf(paramValue2, "%d", _id);
-    sprintf(paramName3, "%s", "--conf");
+    sprintf(paramName3, "%s", "-conf");
     sprintf(paramValue3, "%s", _conf.c_str());
 
     argv[0] = param0;
@@ -116,7 +116,8 @@ int Worker::exec()
     argv[3] = paramName2;
     argv[4] = paramValue2;
     argv[5] = paramName3;
-    argv[6] = NULL;
+    argv[6] = paramValue3;
+    argv[7] = NULL;
 
     return execv(argv[0], argv);
 }

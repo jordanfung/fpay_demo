@@ -38,6 +38,7 @@ public:
             delete _acceptor;
         }
     }
+
     void onAccept(int so, uint32_t ip, int port);
 
     virtual std::string getIp()
@@ -52,13 +53,11 @@ public:
 
     virtual void start();
 
-protected:
-    virtual WorkerTcpAcceptor *createAcceptor(int fd);
+private:
+    WorkerTcpAcceptor *createAcceptor(int fd);
 
     WorkerTcpAcceptor* _acceptor;
     int _sockPairFd;
-
-    friend class WorkerTcpAcceptor;
 };
 
 #endif

@@ -27,32 +27,14 @@ DEFINE_int32(port, 9090, "server listen port");
 DEFINE_string(id, "9090", "id");
 DEFINE_string(conf, "../conf/server.conf", "server xml conf file");
 
-int logStr2Num(const std::string &log)
-{
-    if (log == "INFO") {
-        return google::GLOG_INFO;
-    } else if (log == "WARNING") {
-        return google::GLOG_WARNING;
-    } else if (log == "ERROR") {
-        return google::GLOG_ERROR;
-    } else if (log == "FATAL") {
-        return google::GLOG_FATAL;
-    }
-    return google::GLOG_INFO;
-}
-
 static void initLog(const Config & conf, const string& serverId="log_")
 {
     FLAGS_log_dir = conf.logPath;
-    google::InitGoogleLogging("log"); 
-    //FLAGS_stderrthreshold = google::GLOG_INFO;
-    //FLAGS_colorlogtostderr = true;
-    google::SetLogDestination(google::GLOG_INFO, (conf.logPath+ "log.").data());
-    google::SetLogDestination(google::GLOG_WARNING, (conf.logPath+ "warn.").data());
+    google::InitGoogleLogging("node_server"); 
     google::SetLogFilenameExtension(serverId.c_str());
     FLAGS_logtostderr = false;
-    //0: INFO, 1: WARNING，2: ERROR, 3: FATAL
-    FLAGS_minloglevel = logStr2Num(conf.logLevel);
+    //FLAGS_colorlogtostderr = true;
+    FLAGS_minloglevel = conf.logLevel;
     google::InstallFailureSignalHandler();
 }
 
@@ -81,12 +63,12 @@ int main(int argc, char **argv)
     Config* config = Config::Instance();
 #ifdef CFG_CREAL
     if (!Config::FromXmlFile(FLAGS_conf.c_str(), *config)) {
-        LOG_INFO << "failed to load configuration: " << FLAGS_conf;
+        LOG_RELEASE << "failed to load configuration: " << FLAGS_conf;
         return -1;
     }
 #else
     if (!config->Load(FLAGS_conf.c_str())) {
-        LOG_INFO << "failed to load configuration: " << FLAGS_conf;
+        LOG_RELEASE << "failed to load configuration: " << FLAGS_conf;
         return -1;
     }
 #endif
@@ -94,7 +76,7 @@ int main(int argc, char **argv)
     std::string &serverId = FLAGS_id;
     initLog(*config, serverId);
 
-    LOG_INFO << " pid=" << getpid() << ", channelId=" << FLAGS_channel << ", id=" << FLAGS_id << ", " << *config;
+    LOG_RELEASE << "starting FPNodeServer: pid=" << getpid() << ", channelId=" << FLAGS_channel << ", id=" << FLAGS_id << ", " << *config;
 
     env::ioLoop(new IOLoop());
 
@@ -111,16 +93,22 @@ int main(int argc, char **argv)
     __appContext.setWriter(&__writer);
     __writer.setClientConnFactory(&screator);
 
-#if 0
-    WorkerTcpServer __server(FLAGS_channel);
-#else
-    TcpServer __server(FLAGS_port);
-#endif
-    __server.start();
+    IAbstractServer* __server;
+    if (FLAGS_channel > 0) {
+        __server = new WorkerTcpServer(FLAGS_channel);
+    } else if (FLAGS_port > 0) {
+        __server = new TcpServer(FLAGS_port);
+    } else {
+        LOG_RELEASE << "one of the parameters(channel or port) must be specified";
+        return -1;
+    }
+
+    __server->start();
+
     JsonProtoConsumer __jsonConsumer;
     __jsonConsumer.setAppContext(&__appContext);
-    __server.setConnManager(&__connManager);
-    __server.setProtoConsumer(&__jsonConsumer);
+    __server->setConnManager(&__connManager);
+    __server->setProtoConsumer(&__jsonConsumer);
     __writer.setProtoConsumer(&__jsonConsumer);
 
     FPReqHandler* reqHandler = new FPReqHandler();

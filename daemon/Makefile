@@ -14,5 +14,3 @@ $(PROGRAM): $(OBJ_COMM) $(COMM_LIB)
 	$(CXX) -o $@ $(OBJ_COMM) $(COMM_LIB) $(LDFLAGS)
 clean:
 	rm $(OBJ_COMM) $(PROGRAM)
-	rm log*
-	rm warn*

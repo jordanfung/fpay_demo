@@ -12,12 +12,12 @@ class TcpServer;
 class StandaloneTcpAcceptor: public TcpAcceptor
 {
 protected:
-    TcpServer *impl;
+    TcpServer *_server;
 
 public:
     StandaloneTcpAcceptor(TcpServer *server, int fd)
         : TcpAcceptor(fd)
-        , impl(server)
+        , _server(server)
     {}
     virtual ~StandaloneTcpAcceptor()
     {}
@@ -27,34 +27,19 @@ public:
 
 class TcpServer: public IAbstractServer
 {
-protected:
-    StandaloneTcpAcceptor* _acceptor;
-
-    friend class StandaloneTcpAcceptor;
-
-    bool _bOpenAllow;
-    uint16_t _listenPort;
-    std::string _ip;
-    std::set<uint32_t> _allowIps;
-
 public:
-    TcpServer(uint16_t port)
-        : _bOpenAllow(false)
-        , _listenPort(port)
+    TcpServer(int port)
+        : _listenPort(port)
+        , _acceptor(NULL)
     {}
+
     virtual ~TcpServer()
     {
         delete _acceptor;
         _acceptor = NULL;
     }
+
     void onAccept(int fd, uint32_t ip, uint16_t port);
-
-    virtual StandaloneTcpAcceptor* createAcceptor(const char *ip, uint16_t port);
-
-    void setAllowIPs(const std::set<uint32_t> &ips)
-    {
-        _allowIps = ips;
-    }
 
     virtual std::string getIp()
     {
@@ -72,6 +57,13 @@ public:
     }
 
     virtual void start();
+
+private:
+    StandaloneTcpAcceptor* createAcceptor(const char *ip, uint16_t port);
+
+    std::string _ip;
+    uint16_t _listenPort;
+    StandaloneTcpAcceptor* _acceptor;
 };
 
 #endif

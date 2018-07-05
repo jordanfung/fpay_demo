@@ -29,7 +29,7 @@ Config* Config::Instance()
 }
 
 Config::Config()
-     : blockSyncInterval(200)
+     : blockSyncInterval(500)
 {
 }
 
@@ -115,19 +115,19 @@ bool Config::Load(const char *file)
     if (!node || !node->GetText()) {
         return false;
     }
-    this->txPoolKey= node->GetText();
+    this->txPoolKey = node->GetText();
 
     node = root.FirstChildElement("BCLock").Element();
     if (!node || !node->GetText()) {
         return false;
     }
-    this->BCLock= node->GetText();
+    this->BCLock = node->GetText();
 
     node = root.FirstChildElement("nodeRole").Element();
     if (!node || !node->GetText()) {
         return false;
     }
-    this->nodeRole= atoi(node->GetText());
+    this->nodeRole = atoi(node->GetText());
 
     node = root.FirstChildElement("childNodesKey").Element();
     if (!node || !node->GetText()) {
@@ -137,17 +137,17 @@ bool Config::Load(const char *file)
 
     node = root.FirstChildElement("parentNode").Element();
     if (node && node->GetText()) {
-        this->parentNode= node->GetText();
+        this->parentNode = node->GetText();
     }
 
     node = root.FirstChildElement("logLevel").Element();
     if (node && node->GetText()) {
-        this->logLevel= node->GetText();
+        this->logLevel = atoi(node->GetText());
     }
 
     node = root.FirstChildElement("logPath").Element();
     if (node && node->GetText()) {
-        this->logPath= node->GetText();
+        this->logPath = node->GetText();
     }
 
     return true;

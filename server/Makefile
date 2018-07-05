@@ -18,5 +18,3 @@ $(NODE_SERVER): $(NODE_SERVER_OBJ) $(COMM_LIB)
 clean:
 	rm *.o 
 	rm $(NODE_SERVER)
-	rm log*
-	rm warn*

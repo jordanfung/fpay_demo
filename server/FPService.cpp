@@ -39,7 +39,7 @@ FPService::~FPService()
 
 bool FPService::init(const string& hostPort, IRouteTarget* routeTarget)
 {
-    LOG_DEBUG << "FPService Init....";
+    LOG_RELEASE << "FPService Init....";
     _hostport = hostPort;
     _routeTarget = routeTarget;
     _parentNode = gConfig->parentNode;
@@ -162,7 +162,7 @@ bool FPService::initStorage()
 bool FPService::initBalance()
 {
     string blockId = gConfig->initBlockId;
-    LOG_INFO << "init balance cache: initBlockId=" << blockId;
+    LOG_RELEASE << "init balance cache: initBlockId=" << blockId;
 
     // 同步读，反序列化
     while (!blockId.empty()) {
@@ -180,7 +180,7 @@ bool FPService::initBalance()
 
 void FPService::recieveBlock(Block& block)
 {
-    LOG_INFO << "recieve a new block: id=" << block._id;
+    LOG_RELEASE << "recieve a new block: id=" << block._id;
     return;
 
     acquireLock(gConfig->BCLock);
@@ -277,7 +277,7 @@ bool FPService::createBlock(Block& block)
         lastBlock._next = block._id;
         storeBlock(block);
         storeBlock(lastBlock);
-        LOG_INFO << "New block: id=" << block._id;
+        LOG_RELEASE << "New block: id=" << block._id;
         return true;
     }
 
@@ -301,13 +301,14 @@ bool FPService::broadcast(const Block& block)
         return false;
     }
 
-    LOG_DEBUG << "broadcasting block to " << childNodes.size() << " child nodes";
+    LOG_RELEASE << "broadcasting block to " << childNodes.size() << " child nodes";
     for (auto & nodeStr : childNodes) {
         NodeInfo nodeInfo;
         if (!nodeInfo.fromString(nodeStr)) {
             LOG_ERROR << "deserialize node fails";
             continue;
         }
+        LOG_RELEASE << "send block to child: " << nodeInfo._hostport;
         _routeTarget->sendTo(nodeInfo._hostport, Block::uri, block);
     }
 
@@ -321,7 +322,7 @@ bool FPService::broadcast(const Block& block)
 // 处理查询余额的请求
 bool FPService::queryBalance(const string& userId, int64_t& value)
 {
-    LOG_INFO << "query balance: address=" << userId;
+    LOG_RELEASE << "query balance: address=" << userId;
 
     string val;
     if (_cache->Get(userId, val)) {
@@ -334,13 +335,13 @@ bool FPService::queryBalance(const string& userId, int64_t& value)
 bool FPService::queryBalanceString(const string& userId, string& value)
 {
     bool ret = _cache->Get(userId, value);
-    LOG_INFO << "query balance: address=" << userId << ", balance=" << value;
+    LOG_RELEASE << "query balance: address=" << userId << ", balance=" << value;
     return ret;
 }
 
 bool FPService::handleLogin(NodeInfo& nodeInfo)
 {
-    LOG_INFO << "Child node login: " << nodeInfo._hostport;
+    LOG_RELEASE << "Child node login: " << nodeInfo._hostport;
     string jsonStr;
     if (!nodeInfo.toString(jsonStr)) {
         LOG_ERROR << "child node info error";
@@ -352,7 +353,7 @@ bool FPService::handleLogin(NodeInfo& nodeInfo)
 
 bool FPService::handleTransaction(Transaction& tx)
 {
-    LOG_INFO << "Transaction: tid=" << tx._id << ", from=" << tx._from << ", to=" << tx._to << ", value=" << tx._value;
+    LOG_RELEASE << "Transaction: tid=" << tx._id << ", from=" << tx._from << ", to=" << tx._to << ", value=" << tx._value;
     int64_t balance = 0;
     if (!queryBalance(tx._from, balance)) {
         LOG_DEBUG << "query balance fail";
@@ -402,7 +403,7 @@ bool FPService::handleTransaction(Transaction& tx)
 // 返回从fromBlockId开始的区块链列表
 bool FPService::queryBlockChain(const string& fromBlockId, vector<Block>& blockList)
 {
-    LOG_INFO << "query block chain from: blockId=" << fromBlockId;
+    LOG_RELEASE << "query block chain from: blockId=" << fromBlockId;
 
     string blockId;
     Block lastBlock;
@@ -425,7 +426,7 @@ bool FPService::queryBlockChain(const string& fromBlockId, vector<Block>& blockL
 // 处理从网络接收到的block (矿工节点）
 bool FPService::handleBlockArrived(Block& block)
 {
-    LOG_DEBUG << "block arrived: id=" << block._id;
+    LOG_RELEASE << "block arrived: id=" << block._id;
 
     if (_nodeRole != kNodeRoleMiner) {
         return false;
@@ -437,7 +438,7 @@ bool FPService::handleBlockArrived(Block& block)
 
 bool FPService::forward(Transaction& tx)
 {
-    LOG_DEBUG << "forward to parent node: " << gConfig->parentNode << ", txId=" <<  tx._id;
+    LOG_RELEASE << "forward to parent node: " << gConfig->parentNode << ", txId=" <<  tx._id;
     if (!_routeTarget || _parentNode.empty()) {
         return false;
     }
@@ -452,7 +453,7 @@ bool FPService::login()
         return false;
     }
 
-    LOG_DEBUG << "Login to parent node: " << gConfig->parentNode;
+    LOG_RELEASE << "Login to parent node: " << gConfig->parentNode;
     NodeInfo nodeInfo(_address, _hostport, clock_t());
     _routeTarget->sendTo(_parentNode, NodeInfo::uri, nodeInfo);
 
