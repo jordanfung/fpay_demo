@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         }   
     } 
 
-    LOG_RELEASE << "init event loop";
+    LOG_RELEASE << "start worker";
     env::ioLoop(new IOLoop());
     env::signalHandler(new SignalHandler());
     env::signalHandler()->addSig(SIGCHLD);

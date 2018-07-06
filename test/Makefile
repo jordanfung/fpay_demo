@@ -1,6 +1,10 @@
-CXXFLAG = -I../core/base -I../3parts/include -I.
+include ../Makefile.inc
+
+CXXFLAGS += -I../server -I. -lpthread -std=c++11
 .PHONY: all clean
 all:
-	g++ -Werror -std=c++11 -o test -O3 -lpthread -lz  $(CXXFLAG)  test.cpp -lpthread -DJSON_NEST
+	$(CXX) -o test $(COMM_LIB) $(LDFLAGS) $(CXXFLAGS) -DJSON_NEST test.cpp
+	$(CXX) -o initSuperWallet initSuperWallet.cpp $(COMM_LIB) $(LDFLAGS) $(CXXFLAGS) -DJSON_NEST
 clean:
 	rm test
+	rm initSuperWallet

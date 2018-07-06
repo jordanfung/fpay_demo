@@ -14,12 +14,21 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
-#include "FPTypes.h"
+#include "FPProto.h"
 
 static const char account_file_path[] = "accounts.txt";
 static const std::string init_address = "0000000000000000000000000000000000000000000000000000000000000000";
 // request format:
 // [----4-bytes-sesssionId----][----4-bytes-length----][----1-byte-cmd----][json-object]
+
+typedef enum {
+    COMMAND_NONE = 0,
+    COMMAND_QUERY = 1,
+    COMMAND_CONNECT = 2,
+    COMMAND_CONFIRMATION = 3,
+    COMMAND_PAY = 4,
+    COMMAND_BROADCAST = 5,
+} Command;
 
 static void netItoa(int paraIn, char paraOut[])
 {
@@ -33,7 +42,7 @@ static int netAtoi(const char paraIn[])
     return ntohl(*num);
 }
 
-static uint32_t hash(const std::string& key)
+static uint32_t JShash(const std::string& key)
 {
     uint32_t hash = 1315423911;
     if (!key.empty()) {
@@ -59,16 +68,15 @@ void usage(char** argv)
 
 bool buildQueryRequest(const std::string& address, std::string& reqData)
 {
-    Query  query;
+    QueryBalance query;
     query._address = address;
     std::string json;
-    Query::ToString(query, json);
-    if (json.empty()) {
+    if (!query.toString(json)) {
         return false;
     }
 
     char cmd = COMMAND_QUERY;
-    uint32_t userHash = hash(address);
+    uint32_t userHash = JShash(address);
     char buf[4];
     netItoa(userHash, buf);
     reqData.assign(buf, 4);
@@ -95,11 +103,11 @@ bool buildTxRequest(const std::string& from, const std::string& to, uint32_t val
     tx._timestamp = clock_t();
 
     std::string json;
-    if (!Transaction::ToString(tx, json)) {
+    if (!tx.toString(json)) {
         return false;
     }
     char cmd = COMMAND_PAY;
-    uint32_t userHash = hash(from);
+    uint32_t userHash = JShash(from);
     netItoa(userHash, buf);
     reqData.assign(buf, 4);
     netItoa(json.size() + 1, buf);

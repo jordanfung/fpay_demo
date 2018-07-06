@@ -211,7 +211,7 @@ bool FPService::storeBlock(Block& block)
 
 bool FPService::updateBalance(const Block* block)
 {
-    std::map<string, int> balanceMap;
+    std::map<string, int64_t> balanceMap;
 
     for (auto & tx : block->_txList) {
         balanceMap[tx._from] -= tx._value;
@@ -221,7 +221,7 @@ bool FPService::updateBalance(const Block* block)
     for (auto & pair : balanceMap) {
         int64_t balance = 0; 
         _cache->IncrBy(pair.first, pair.second, balance);
-        LOG_INFO << "update balance: address=" << pair.first << ", balance=" << balance << ", incr=" << pair.second;
+        LOG_RELEASE << "update balance: address=" << pair.first << ", balance=" << balance << ", incr=" << pair.second;
     }
 }
 

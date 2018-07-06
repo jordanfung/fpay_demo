@@ -96,8 +96,8 @@ public:
     string _id;
     string _from;
     string _to;
-    int32_t _value;
-    int32_t _timestamp;
+    int64_t _value;
+    uint64_t _timestamp;
     //vector<Confirm> _confirmList;
 
     template <class Archive>

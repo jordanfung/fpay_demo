@@ -97,7 +97,6 @@ void WorkerTcpAcceptor::doEvent(int ev)
 
 void WorkerTcpServer::onAccept(int so, uint32_t ip, int port)
 {
-    DLOG_TRACE;
     LOG_INFO << "Accept from from :" << addr_ntoa(ip) << ":" << port;
     _connManager->createServerSideConn(so, ip, port, getProtoConsumer(), getConnEventHandler());
 }
