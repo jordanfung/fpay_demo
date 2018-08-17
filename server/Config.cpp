@@ -14,9 +14,8 @@
 #include <dirent.h>
 
 #include "Config.h"
-#include "tinyxml/tinyxml.h"
+#include "tinyxml.h"
 
-using namespace imtixml;
 
 Config* Config::instance = 0;
 
@@ -76,7 +75,7 @@ bool Config::Load(const char *file)
 
     bool ret = false;
 
-    imtixml::TiXmlElement *node = root.FirstChildElement("blockSyncInterval").Element();
+    TiXmlElement *node = root.FirstChildElement("blockSyncInterval").Element();
     if (node && node->GetText()) {
         this->blockSyncInterval = atoi(node->GetText()); 
     }
