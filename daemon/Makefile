@@ -11,6 +11,6 @@ CXXFLAGS += -lpthread -std=c++11
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(PROGRAM): $(OBJ_COMM) $(COMM_LIB) 
-	$(CXX) -o $@ $(OBJ_COMM) $(COMM_LIB) $(LDFLAGS)
+	$(CXX) -o $@ $(OBJ_COMM) $(COMM_LIB) $(LDFLAGS) -lglog -lgflags
 clean:
 	rm $(OBJ_COMM) $(PROGRAM)

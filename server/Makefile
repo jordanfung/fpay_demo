@@ -13,7 +13,7 @@ CXXFLAGS += -lpthread -std=c++11
 all:$(NODE_SERVER)
 
 $(NODE_SERVER): $(NODE_SERVER_OBJ) $(COMM_LIB) 
-	$(CXX) -o $@ $(NODE_SERVER_OBJ) $(COMM_LIB) $(LDFLAGS)
+	$(CXX) -o $@ $(NODE_SERVER_OBJ) $(COMM_LIB) $(LDFLAGS) -ltinyxml -lglog -lgflags -lhiredis
 
 clean:
 	rm *.o 

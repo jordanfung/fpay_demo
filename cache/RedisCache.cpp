@@ -1,11 +1,10 @@
 #include "RedisCache.h"
 #include "logging.h"
-#include "tinyxml/tinyxml.h"
+#include "tinyxml.h"
 #include <iostream>
 #include <string>
 
 using namespace std;
-using namespace imtixml;
 
 RedisCache::~RedisCache()
 {
